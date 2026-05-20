@@ -8,22 +8,23 @@ class Produit extends Model
 {
     protected $table = 'produits';
 
-    protected $fillable = [
-        'reference',
-        'nom',
-        'description',
-        'categorie_id',
-        'prix_achat',
-        'prix_vente',
-        'prix_revient',
-        'quantite',
-        'seuil_alerte',
-        'unite',
-        'photo',
-        'statut',
-        'notes',
-    ];
-
+   protected $fillable = [
+    'reference',
+    'nom',
+    'description',
+    'origine',        
+    'categorie_id',
+    'prix_achat',
+    'prix_vente',
+    'prix_revient',
+    'quantite',
+    'seuil_alerte',
+    'unite',
+    'photo',
+    'photo_url',      
+    'statut',
+    'notes',
+];
     protected $casts = [
         'prix_achat'   => 'decimal:2',
         'prix_vente'   => 'decimal:2',
