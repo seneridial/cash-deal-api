@@ -8,6 +8,7 @@ use App\Http\Controllers\AchatController;
 use App\Http\Controllers\StatistiqueController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MouvementController;
 use Illuminate\Support\Facades\Route;
 
 // ── Routes publiques ──────────────────────────────────────────
@@ -26,10 +27,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/statistiques/top-produits', [StatistiqueController::class, 'topProduits']);
 
     // Produits
-    Route::get('/produits',          [ProduitController::class, 'index']);
     Route::get('/produits/stats',    [ProduitController::class, 'stats']);
+    Route::get('/produits',          [ProduitController::class, 'index']);
     Route::get('/produits/{produit}',[ProduitController::class, 'show']);
-
     Route::middleware('role:admin,gerant')->group(function () {
         Route::post('/produits',            [ProduitController::class, 'store']);
         Route::put('/produits/{produit}',   [ProduitController::class, 'update']);
@@ -39,7 +39,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Clients
     Route::get('/clients',          [ClientController::class, 'index']);
     Route::get('/clients/{client}', [ClientController::class, 'show']);
-
     Route::middleware('role:admin,gerant')->group(function () {
         Route::post('/clients',           [ClientController::class, 'store']);
         Route::put('/clients/{client}',   [ClientController::class, 'update']);
@@ -47,8 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Ventes
-    Route::get('/ventes',       [VenteController::class, 'index']);
     Route::get('/ventes/stats', [VenteController::class, 'stats']);
+    Route::get('/ventes',       [VenteController::class, 'index']);
     Route::post('/ventes',      [VenteController::class, 'store']);
 
     // Achats
@@ -59,8 +58,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Factures
     Route::get('/factures',               [FactureController::class, 'index']);
-    Route::get('/factures/{facture}',     [FactureController::class, 'show']);
     Route::get('/factures/{facture}/pdf', [FactureController::class, 'pdf']);
+    Route::get('/factures/{facture}',     [FactureController::class, 'show']);
 
     // Utilisateurs (admin uniquement)
     Route::middleware('role:admin')->group(function () {
@@ -69,5 +68,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/users/{user}',    [UserController::class, 'update']);
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
     });
+
+    // Mouvements / Dépôts
+    Route::get('/mouvements/stats',  [MouvementController::class, 'stats']);
+    Route::get('/mouvements/etats',  [MouvementController::class, 'etats']);
+    Route::get('/mouvements/pdf',    [MouvementController::class, 'exportPdf']);
+    Route::get('/mouvements',        [MouvementController::class, 'index']);
+    Route::post('/mouvements',       [MouvementController::class, 'store']);
 
 });
