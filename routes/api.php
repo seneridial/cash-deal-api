@@ -10,6 +10,8 @@ use App\Http\Controllers\FactureController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MouvementController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MessageController;
+
 
 // ── Routes publiques ──────────────────────────────────────────
 Route::post('/login', [AuthController::class, 'login']);
@@ -75,5 +77,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/mouvements/pdf',    [MouvementController::class, 'exportPdf']);
     Route::get('/mouvements',        [MouvementController::class, 'index']);
     Route::post('/mouvements',       [MouvementController::class, 'store']);
+
+    // Messages / Contact
+    Route::get('/messages/non-lus',          [MessageController::class, 'nonLus']);
+    Route::get('/messages',                  [MessageController::class, 'index']);
+    Route::post('/messages',                 [MessageController::class, 'store']);
+    Route::put('/messages/{message}/lire',   [MessageController::class, 'lire']);
+    Route::put('/messages/{message}/repondre', [MessageController::class, 'repondre']);
 
 });
