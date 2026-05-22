@@ -66,4 +66,29 @@ class UserController extends Controller
         $user->delete();
         return response()->json(['message' => 'Utilisateur supprimé.']);
     }
+
+    // PUT /api/profil/password
+public function changePassword(Request $request): JsonResponse
+{
+    $request->validate([
+        'current_password' => 'required|string',
+        'new_password'     => 'required|string|min:8|confirmed',
+    ]);
+
+    $user = $request->user();
+
+    if (!Hash::check($request->current_password, $user->password)) {
+        return response()->json([
+            'message' => 'Mot de passe actuel incorrect.'
+        ], 422);
+    }
+
+    $user->update([
+        'password' => Hash::make($request->new_password)
+    ]);
+
+    return response()->json([
+        'message' => 'Mot de passe modifié avec succès.'
+    ]);
+}
 }

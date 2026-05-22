@@ -85,4 +85,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/messages/{message}/lire',   [MessageController::class, 'lire']);
     Route::put('/messages/{message}/repondre', [MessageController::class, 'repondre']);
 
+    // Profil utilisateur
+    Route::put('/profil/password', [UserController::class, 'changePassword']);
 });
