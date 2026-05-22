@@ -48,66 +48,68 @@ class ProduitController extends Controller
     {
         return response()->json($produit->load('categorie'));
     }
+    public function store(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'reference'    => 'required|string|unique:produits',
+            'nom'          => 'required|string|max:255',
+            'description'  => 'nullable|string',
+            'origine'      => 'nullable|string|max:255',
+            'categorie_id' => 'required|exists:categories,id',
+            'prix_achat'   => 'required|numeric|min:0',
+            'prix_vente'   => 'required|numeric|min:0',
+            'prix_revient' => 'nullable|numeric|min:0',
+            'quantite'     => 'required|integer|min:0',
+            'seuil_alerte' => 'nullable|integer|min:0',
+            'unite'        => 'nullable|string',
+            'statut'       => 'nullable|in:actif,inactif,archive',
+            'notes'        => 'nullable|string',
+            'photo'        => 'nullable|image|max:5120',
+        ]);
 
-public function store(Request $request): JsonResponse
-{
-    $data = $request->validate([
-        'reference'    => 'required|string|unique:produits',
-        'nom'          => 'required|string|max:255',
-        'description'  => 'nullable|string',
-        'origine'      => 'nullable|string|max:255',
-        'categorie_id' => 'required|exists:categories,id',
-        'prix_achat'   => 'required|numeric|min:0',
-        'prix_vente'   => 'required|numeric|min:0',
-        'prix_revient' => 'nullable|numeric|min:0',
-        'quantite'     => 'required|integer|min:0',
-        'seuil_alerte' => 'nullable|integer|min:0',
-        'unite'        => 'nullable|string',
-        'statut'       => 'nullable|in:actif,inactif,archive',
-        'notes'        => 'nullable|string',
-        'photo'        => 'nullable|image|max:2048',
-    ]);
+        if ($request->hasFile('photo')) {
+            $result = cloudinary()->upload($request->file('photo')->getRealPath(), [
+                'folder' => 'cash-deal/produits',
+            ]);
+            $data['photo_url'] = $result->getSecurePath();
+        }
 
-    // Gérer l'upload de la photo
-    if ($request->hasFile('photo')) {
-        $path = $request->file('photo')->store('produits', 'public');
-        $data['photo_url'] = asset('storage/' . $path);
+        $data['prix_revient'] = $data['prix_revient'] ?? $data['prix_achat'];
+        unset($data['photo']);
+
+        $produit = Produit::create($data);
+        return response()->json($produit->load('categorie'), 201);
     }
 
-    $data['prix_revient'] = $data['prix_revient'] ?? $data['prix_achat'];
-    unset($data['photo']);
+    public function update(Request $request, Produit $produit): JsonResponse
+    {
+        $data = $request->validate([
+            'reference'    => 'sometimes|string|unique:produits,reference,' . $produit->id,
+            'nom'          => 'sometimes|string|max:255',
+            'description'  => 'nullable|string',
+            'origine'      => 'nullable|string|max:255',
+            'categorie_id' => 'sometimes|exists:categories,id',
+            'prix_achat'   => 'sometimes|numeric|min:0',
+            'prix_vente'   => 'sometimes|numeric|min:0',
+            'prix_revient' => 'nullable|numeric|min:0',
+            'quantite'     => 'sometimes|integer|min:0',
+            'seuil_alerte' => 'nullable|integer|min:0',
+            'statut'       => 'nullable|in:actif,inactif,archive',
+            'notes'        => 'nullable|string',
+            'photo'        => 'nullable|image|max:5120',
+        ]);
 
-    $produit = Produit::create($data);
-    return response()->json($produit->load('categorie'), 201);
-}
+        if ($request->hasFile('photo')) {
+            $result = cloudinary()->upload($request->file('photo')->getRealPath(), [
+                'folder' => 'cash-deal/produits',
+            ]);
+            $data['photo_url'] = $result->getSecurePath();
+        }
 
-public function update(Request $request, Produit $produit): JsonResponse
-{
-    $data = $request->validate([
-        'reference'    => 'sometimes|string|unique:produits,reference,' . $produit->id,
-        'nom'          => 'sometimes|string|max:255',
-        'description'  => 'nullable|string',
-        'origine'      => 'nullable|string|max:255',
-        'categorie_id' => 'sometimes|exists:categories,id',
-        'prix_achat'   => 'sometimes|numeric|min:0',
-        'prix_vente'   => 'sometimes|numeric|min:0',
-        'prix_revient' => 'nullable|numeric|min:0',
-        'quantite'     => 'sometimes|integer|min:0',
-        'seuil_alerte' => 'nullable|integer|min:0',
-        'statut'       => 'nullable|in:actif,inactif,archive',
-        'notes'        => 'nullable|string',
-        'photo'        => 'nullable|image|max:2048',
-    ]);
-
-    if ($request->hasFile('photo')) {
-        $path = $request->file('photo')->store('produits', 'public');
-        $data['photo_url'] = asset('storage/' . $path);
+        unset($data['photo']);
+        $produit->update($data);
+        return response()->json($produit->load('categorie'));
     }
-
-    unset($data['photo']);
-    $produit->update($data);
-    return response()->json($produit->load('categorie'));
-}
 
     // DELETE /api/produits/{id}
    public function destroy(Produit $produit): JsonResponse
